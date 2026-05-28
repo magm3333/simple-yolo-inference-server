@@ -64,7 +64,7 @@ simple-yolo-inference-server/
 
 ```bash
 # Build the image
-docker build - magm3333/simple-yolo-inference-server .
+docker build -t magm3333/simple-yolo-inference-server .
 
 # Run the container
 docker run -p 8000:8000 -v $(pwd)/app/models:/app/models magm3333/simple-yolo-inference-server
@@ -135,12 +135,43 @@ Perform inference on an image using a specified YOLO model.
 
 ## Docker Image
 
-The Docker image is available on Docker Hub: `magm3333/simple-yolo-inference-server`
+The Docker image is automatically built and pushed to Docker Hub from this repository.
 
-To pull and run:
+**Image Name:** `magm3333/simple-yolo-inference-server`
+**Tag:** `latest` (automatically updated on each commit to main)
+
+### To use the pre-built image from Docker Hub:
+
+1. Pull the image:
 ```bash
-docker pull magm3333/simple-yolo-inference-server
-docker run -p 8000:8000 -v /path/to/models:/app/models magm3333/simple-yolo-inference-server
+docker pull magm3333/simple-yolo-inference-server:latest
+```
+
+2. Run the container (mount your models directory for persistence):
+```bash
+docker run -d \
+  --name yolo-inference \
+  -p 8000:8000 \
+  -v /your/local/models/path:/app/models \
+  magm3333/simple-yolo-inference-server:latest
+```
+
+3. Access the API at http://localhost:8000
+   - Swagger documentation: http://localhost:8000/docs
+   - Health check: http://localhost:8000/models
+
+### To build and run locally (alternative):
+
+```bash
+# Build the image
+docker build -t magm3333/simple-yolo-inference-server .
+
+# Run the container
+docker run -d \
+  --name yolo-inference \
+  -p 8000:8000 \
+  -v $(pwd)/app/models:/app/models \
+  magm3333/simple-yolo-inference-server
 ```
 
 ## Model Storage

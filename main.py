@@ -1,12 +1,14 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import os
 import shutil
 from pathlib import Path
 import time
 import uuid
+import cv2
 from ultralytics import YOLO
 import torch
+
 
 app = FastAPI(
     title="Simple YOLO Inference Server",
@@ -18,6 +20,11 @@ app = FastAPI(
 # (¿Qué le dice un vector a otro? "Oye, ¿tienes un momento para hablar de nuestra dirección?")
 MODELS_DIR = Path("/app/models")
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Directorio para guardar las imágenes con las anotaciones (bboxes dibujados)
+ANNOTATED_DIR = Path("/tmp/annotated_images")
+ANNOTATED_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # Caché para modelos cargados y evitar recargarlos.
 # (¿Por qué los programadores confunden Halloween con Navidad? Porque Oct 31 == Dec 25).
@@ -94,6 +101,13 @@ async def infer(
         
         inference_time_ms = int((end_time - start_time) * 1000)
         
+        # Generar y guardar la imagen anotada con las detecciones
+        annotated_image_id = str(uuid.uuid4())
+        if len(results) > 0:
+            annotated_frame = results[0].plot()
+            output_image_path = ANNOTATED_DIR / f"{annotated_image_id}.jpg"
+            cv2.imwrite(str(output_image_path), annotated_frame)
+        
         # Procesar los resultados obtenidos
         detections = []
         for result in results:
@@ -123,7 +137,8 @@ async def infer(
                 "errormsg": "",
                 "infertimems": inference_time_ms
             },
-            "results": detections
+            "results": detections,
+            "annotated_image_url": f"/infer/download/{annotated_image_id}"
         }
     
     except Exception as e:
@@ -139,6 +154,16 @@ async def infer(
             },
             "results": []
         }
+
+@app.get("/infer/download/{image_id}")
+async def download_annotated_image(image_id: str):
+    """
+    Descargar una imagen anotada con las detecciones usando su ID único.
+    """
+    file_path = ANNOTATED_DIR / f"{image_id}.jpg"
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Imagen anotada no encontrada")
+    return FileResponse(file_path, media_type="image/jpeg")
 
 if __name__ == "__main__":
     import uvicorn

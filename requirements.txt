@@ -1,9 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi>=0.68.0
 uvicorn>=0.15.0
 ultralytics>=8.0.0
 python-multipart>=0.0.5
-# Usar opencv-python-headless para evitar dependencias de GUI (como libxcb) en el contenedor
 opencv-python-headless
-# Explicitly use CPU-only torch to avoid NVIDIA dependencies
-torch>=1.8.0 -f https://download.pytorch.org/whl/cpu/torch_stable.html
-# Exclude unnecessary heavy dependencies that come transitively
+torch

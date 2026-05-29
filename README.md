@@ -95,7 +95,7 @@ Sube un nuevo modelo YOLO (.pt file).
 ```
 
 ### POST /infer
-Realiza inferencia en una imagen utilizando un modelo YOLO especificado.
+Realiza inferencia en una imagen utilizando un modelo YOLO especificado. Además, genera una versión anotada de la imagen con los bounding boxes dibujados en el servidor, devolviendo un ID para su posterior descarga.
 
 **Parámetros:**
 - `image`: El archivo de imagen para procesar (PNG, JPG, JPEG, BMP, TIFF)
@@ -117,7 +117,8 @@ Realiza inferencia en una imagen utilizando un modelo YOLO especificado.
       "classnumber": 0,
       "conf": 84.4
     }
-  ]
+  ],
+  "annotated_image_url": "/infer/download/1b35d41c-b50d-4a44-8a24-ba1d08107fb9"
 }
 ```
 
@@ -132,6 +133,16 @@ Realiza inferencia en una imagen utilizando un modelo YOLO especificado.
   "results": []
 }
 ```
+
+### GET /infer/download/{image_id}
+Permite descargar la imagen original procesada con las cajas delimitadoras (bounding boxes), nombres de clase y porcentajes de confianza dibujados sobre ella.
+
+**Parámetros de ruta:**
+- `image_id`: El identificador único UUID devuelto por el endpoint `/infer` en el campo `annotated_image_url`.
+
+**Respuesta:**
+- Retorna un archivo de imagen en formato JPEG (`image/jpeg`). Si la imagen no existe, devuelve una respuesta HTTP `404 Not Found`.
+
 
 ## Imagen de Docker
 
@@ -173,6 +184,19 @@ docker run -d \
   -v $(pwd)/app/models:/app/models \
   magm3333/simple-yolo-inference-server
 ```
+
+### Script de Automatización de Build y Push:
+
+Se incluye un script `build.sh` para automatizar la construcción de la imagen y su publicación en Docker Hub:
+
+```bash
+# Otorgar permisos de ejecución si no los tiene
+chmod +x build.sh
+
+# Construir la imagen local y subirla a Docker Hub
+./build.sh
+```
+
 
 ## Ejecución directa con GPU
 

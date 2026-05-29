@@ -99,10 +99,10 @@ async def infer(
                 # Extract box coordinates (xyxy format)
                 x1, y1, x2, y2 = box.xyxy[0].tolist()
                 # Class ID and name
-                class_id = int box.cls[0]
+                class_id = int(box.cls[0])
                 class_name = model.names[class_id]
                 # Confidence score
-                conf = float box.conf[0] * 100  # Convert to percentage
+                conf = float(box.conf[0]) * 100  # Convert to percentage
                 
                 detections.append({
                     "bbox": [x1, y1, x2, y2],

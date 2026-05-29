@@ -1,92 +1,92 @@
-# Simple YOLO Inference Server
+# Servidor de Inferencia YOLO Simple
 
-A FastAPI server for uploading YOLO models and performing inference on images.
+Un servidor FastAPI para subir modelos YOLO y realizar inferencia en imágenes.
 
-## Features
+## Características
 
-- List available YOLO models (`GET /models`)
-- Upload new YOLO models (`POST /models`)
-- Perform inference on images with specified model and confidence threshold (`POST /infer`)
-- Automatic Swagger documentation at `/docs`
+- Lista modelos YOLO disponibles (`GET /models`)
+- Sube nuevos modelos YOLO (`POST /models`)
+- Realiza inferencia en imágenes con modelo y umbral de confianza especificados (`POST /infer`)
+- Documentación Swagger automática en `/docs`
 
-## Project Structure
+## Estructura del Proyecto
 
 ```
 simple-yolo-inference-server/
 ├── app/
-│   └── models/           # Directory for storing YOLO model files (.pt)
-├── main.py               # FastAPI application
-├── requirements.txt      # Python dependencies
-├── Dockerfile            # Docker build instructions
-├── docker-compose.yml    # Docker compose configuration
-└── README.md             # This file
+│   └── models/           # Directorio para almacenar archivos de modelos YOLO (.pt)
+├── main.py               # Aplicación FastAPI
+├── requirements.txt      # Dependencias de Python
+├── Dockerfile            # Instrucciones de construcción de Docker
+├── docker-compose.yml    # Configuración de docker-compose
+└── README.md             # Este archivo
 ```
 
-## Installation and Usage
+## Instalación y Uso
 
-### Prerequisites
+### Prerrequisitos
 
-- Docker and Docker Compose (for containerized deployment)
-- Or Python 3.9+ and pip (for local development)
+- Docker y Docker Compose (para despliegue contenedorizado)
+- O Python 3.9+ y pip (para desarrollo local)
 
-### Local Development
+### Desarrollo Local
 
-1. Clone the repository:
+1. Clona el repositorio:
    ```bash
    git clone https://github.com/magm3333/simple-yolo-inference-server.git
    cd simple-yolo-inference-server
    ```
 
-2. Install dependencies:
+2. Instala las dependencias:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the server:
+3. Ejecuta el servidor:
    ```bash
    uvicorn main:app --host 0.0.0.0 --port 8000
    ```
 
-4. Access the API documentation at http://localhost:8000/docs
+4. Accede a la documentación de la API en http://localhost:8000/docs
 
-### Docker Deployment
+### Despliegue con Docker
 
-1. Build and run with Docker Compose:
+1. Construye y ejecuta con Docker Compose:
    ```bash
    docker-compose up --build
    ```
 
-2. The server will be available at http://localhost:8000
+2. El servidor estará disponible en http://localhost:8000
 
-3. Models are persisted in the `./app/models` directory on the host.
+3. Los modelos se persisten en el directorio `./app/models` del host.
 
-### Manual Docker Build and Run
+### Construcción y Ejecución Manual de Docker
 
 ```bash
-# Build the image
+# Construir la imagen
 docker build -t magm3333/simple-yolo-inference-server .
 
-# Run the container
+# Ejecutar el contenedor
 docker run -p 8000:8000 -v $(pwd)/app/models:/app/models magm3333/simple-yolo-inference-server
 ```
 
-## API Endpoints
+## Endpoints de la API
 
 ### GET /models
-Returns a list of available YOLO model files in the `/app/models` directory.
+Devuelve una lista de archivos de modelos YOLO disponibles en el directorio `/app/models`.
 
-**Response:**
+**Respuesta:**
 ```json
 ["yolo11n.pt", "yolo11s.pt"]
 ```
 
 ### POST /models
-Upload a new YOLO model (.pt file).
+Sube un nuevo modelo YOLO (.pt file).
 
-**Parameters:**
-- `file`: The YOLO model file to upload (must have .pt extension)
+**Parámetros:**
+- `file`: El archivo de modelo YOLO para subir (debe tener extensión .pt)
 
-**Response:**
+**Respuesta:**
 ```json
 {
   "message": "Model yolo11n.pt uploaded successfully",
@@ -95,14 +95,14 @@ Upload a new YOLO model (.pt file).
 ```
 
 ### POST /infer
-Perform inference on an image using a specified YOLO model.
+Realiza inferencia en una imagen utilizando un modelo YOLO especificado.
 
-**Parameters:**
-- `image`: The image file to process (PNG, JPG, JPEG, BMP, TIFF)
-- `model_name`: The name of the YOLO model file (must exist in `/app/models`)
-- `confidence`: Minimum confidence threshold for detections (default: 0.25)
+**Parámetros:**
+- `image`: El archivo de imagen para procesar (PNG, JPG, JPEG, BMP, TIFF)
+- `model_name`: El nombre del archivo de modelo YOLO (debe existir en `/app/models`)
+- `confidence`: Umbral mínimo de confianza para detecciones (por defecto: 0.25)
 
-**Response (Success):**
+**Respuesta (Éxito):**
 ```json
 {
   "info": {
@@ -121,7 +121,7 @@ Perform inference on an image using a specified YOLO model.
 }
 ```
 
-**Response (Error):**
+**Respuesta (Error):**
 ```json
 {
   "info": {
@@ -133,40 +133,40 @@ Perform inference on an image using a specified YOLO model.
 }
 ```
 
-## Docker Image
+## Imagen de Docker
 
-The Docker image is automatically built and pushed to Docker Hub from this repository.
+La imagen de Docker se construye y se envía automáticamente a Docker Hub desde este repositorio.
 
-**Image Name:** `magm3333/simple-yolo-inference-server`
-**Tag:** `latest` (automatically updated on each commit to main)
+**Nombre de la Imagen:** `magm3333/simple-yolo-inference-server`
+**Etiqueta:** `latest` (actualizada automáticamente en cada commit a main)
 
-### To use the pre-built image from Docker Hub:
+### Para usar la imagen pre-construida desde Docker Hub:
 
-1. Pull the image:
+1. Extrae la imagen:
 ```bash
 docker pull magm3333/simple-yolo-inference-server:latest
 ```
 
-2. Run the container (mount your models directory for persistence):
+2. Ejecuta el contenedor (monta tu directorio de modelos para persistencia):
 ```bash
 docker run -d \
   --name yolo-inference \
   -p 8000:8000 \
-  -v /your/local/models/path:/app/models \
+  -v /tu/ruta/local/de/modelos:/app/models \
   magm3333/simple-yolo-inference-server:latest
 ```
 
-3. Access the API at http://localhost:8000
-   - Swagger documentation: http://localhost:8000/docs
-   - Health check: http://localhost:8000/models
+3. Accede a la API en http://localhost:8000
+   - Documentación Swagger: http://localhost:8000/docs
+   - Verificación de salud: http://localhost:8000/models
 
-### To build and run locally (alternative):
+### Para construir y ejecutar localmente (alternativa):
 
 ```bash
-# Build the image
+# Construir la imagen
 docker build -t magm3333/simple-yolo-inference-server .
 
-# Run the container
+# Ejecutar el contenedor
 docker run -d \
   --name yolo-inference \
   -p 8000:8000 \
@@ -174,17 +174,62 @@ docker run -d \
   magm3333/simple-yolo-inference-server
 ```
 
-## Model Storage
+## Ejecución directa con GPU
 
-Models are stored in the `/app/models` directory inside the container.
-When using Docker Compose or volume mounting, this maps to `./app/models` on the host.
+Para ejecutar el servidor directamente en una máquina con GPU NVIDIA, asegúrate de tener los drivers y la versión de CUDA apropiada instalada. Luego, instala las dependencias con soporte para CUDA:
 
-## Notes
+```bash
+# Instalar PyTorch con CUDA (ejemplo para CUDA 12.1)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip install -r requirements.txt
+```
 
-- The server uses Ultralytics YOLO for inference.
-- The first time a model is used, it will be loaded into memory and cached for subsequent requests.
-- The server is designed to be lightweight and efficient.
+Luego ejecuta como de costumbre:
 
-## License
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
 
-This project is proprietary and created by magm.
+## Docker Compose con GPU
+
+Para usar Docker Compose con soporte GPU, asegúrate de tener instalado el [runtime de NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html). Luego, modifica tu archivo `docker-compose.yml` de la siguiente manera:
+
+```yaml
+version: '3.8'
+
+services:
+  yolo-inference:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app/models:/app/models
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    restart: unless-stopped
+```
+
+Luego ejecuta:
+
+```bash
+docker-compose up --build
+```
+
+Nota: La imagen base `python:3.9-slim` no incluye drivers de NVIDIA; al usar el runtime `nvidia`, el contenedor accederá a los drivers del host.
+
+## Almacenamiento de Modelos
+
+Los modelos se almacenan en el directorio `/app/models` dentro del contenedor.
+Al usar Docker Compose o montaje de volúmenes, esto se asigna a `./app/models` en el host.
+
+## Notas
+
+- El servidor utiliza Ultralytics YOLO para la inferencia.
+- La primera vez que se utiliza un modelo, se cargará en memoria y se almacenará en caché para solicitudes posteriores.
+- El servidor está diseñado para ser ligero y eficiente.
+
+## Licencia
+
+Este proyecto es para uso académico y fue creado por Magm.
